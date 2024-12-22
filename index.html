@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-container { margin-bottom: 20px; }
+        input, button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Student Attendance System</h1>
+
+    <div class="form-container">
+        <h2>Add Student</h2>
+        <input type="text" id="name" placeholder="Name" />
+        <input type="text" id="roll_number" placeholder="Roll Number" />
+        <input type="text" id="class" placeholder="Class" />
+        <button onclick="addStudent()">Add Student</button>
+    </div>
+
+    <div class="form-container">
+        <h2>Mark Attendance</h2>
+        <input type="number" id="student_id" placeholder="Student ID" />
+        <input type="date" id="date" />
+        <select id="status">
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+        </select>
+        <button onclick="markAttendance()">Mark Attendance</button>
+    </div>
+
+    <div class="form-container">
+        <h2>Attendance Report</h2>
+        <input type="number" id="report_student_id" placeholder="Student ID" />
+        <button onclick="getReport()">Get Report</button>
+        <pre id="report"></pre>
+    </div>
+
+    <script>
+        const apiUrl = "http://127.0.0.1:5000";
+
+        function addStudent() {
+            const name = document.getElementById('name').value;
+            const rollNumber = document.getElementById('roll_number').value;
+            const studentClass = document.getElementById('class').value;
+
+            fetch(`${apiUrl}/add_student`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, roll_number: rollNumber, class: studentClass })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error));
+        }
+
+        function markAttendance() {
+            const studentId = document.getElementById('student_id').value;
+            const date = document.getElementById('date').value;
+            const status = document.getElementById('status').value;
+
+            fetch(`${apiUrl}/mark_attendance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student_id: studentId, date, status })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error));
+        }
+
+        function getReport() {
+            const studentId = document.getElementById('report_student_id').value;
+
+            fetch(`${apiUrl}/attendance_report/${studentId}`)
+                .then(response => response.json())
+                .then(data => document.getElementById('report').innerText = JSON.stringify(data, null, 2));
+        }
+    </script>
+</body>
+</html>
 
