@@ -1,1 +1,53 @@
+# init_db.py
+import sqlite3
+
+def init_db():
+    """Initialize the SQLite database with required tables."""
+    conn = sqlite3.connect('attendance.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE,
+                        password TEXT,
+                        role TEXT)''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS students (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT,
+                        roll_number TEXT UNIQUE,
+                        class TEXT)''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS attendance (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        student_id INTEGER,
+                        date TEXT,
+                        status TEXT,
+                        FOREIGN KEY(student_id) REFERENCES students(id))''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS courses (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT,
+                        code TEXT UNIQUE)''')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS grades (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        student_id INTEGER,
+                        course_id INTEGER,
+                        grade TEXT,
+                        FOREIGN KEY(student_id) REFERENCES students(id),
+                        FOREIGN KEY(course_id) REFERENCES courses(id))''')
+
+    # Add default admin user if not already in the database
+    cursor.execute("SELECT * FROM users WHERE username = 'admin'")
+    if not cursor.fetchone():
+        cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
+                       ('admin', 'admin123', 'admin'))
+
+    conn.commit()
+    conn.close()
+    print("Database initialized successfully!")
+
+if __name__ == '__main__':
+    init_db()
 
